@@ -60,7 +60,7 @@ class Typing(Hashable, Iterable[PokemonType]):
 #
 
 
-class Pokemon:
+class Pokemon(Hashable):
 
     def __init__(self, name: str, typing: Typing, dex_number: int):
         self.name = name.upper()
@@ -72,6 +72,12 @@ class Pokemon:
 
     def __str__(self) -> str:
         return self.name
+
+    def __eq__(self, other) -> bool:
+        return isinstance(other, Pokemon) and self.name == other.name
+
+    def __hash__(self) -> int:
+        return hash(self.name)
 
 
 class PokemonMap(Iterable[Pokemon]):
@@ -100,14 +106,14 @@ class PokemonMap(Iterable[Pokemon]):
     def name(self, name: str) -> Optional[Pokemon]:
         return self.name_map[name] if name in self.name_map else None
 
-    def typing(self, *typing: Typing) -> List[Pokemon]:
-        return [x for t in typing for x in self.typing_map[t] if t in self.typing_map]
+    def typing(self, *typing: Typing) -> Collection[Pokemon]:
+        return {x for t in typing for x in self.typing_map[t] if t in self.typing_map}
 
-    def type(self, *pokemon_type: PokemonType) -> List[Pokemon]:
-        return [x for t in pokemon_type for x in self.type_map[t] if t in self.type_map]
+    def type(self, *pokemon_type: PokemonType) -> Collection[Pokemon]:
+        return {x for t in pokemon_type for x in self.type_map[t] if t in self.type_map}
 
-    def dex_num(self, *dex: int) -> List[Pokemon]:
-        return [x for d in dex for x in self.dex_map[d] if dex in self.dex_map]
+    def dex_num(self, *dex: int) -> Collection[Pokemon]:
+        return {x for d in dex for x in self.dex_map[d] if dex in self.dex_map}
 
     @staticmethod
     def load_from_csv(path: str) -> PokemonMap:

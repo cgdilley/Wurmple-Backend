@@ -25,13 +25,10 @@ class Generator:
     #
 
     def generate(self) -> Tuple[Pokemon, ...]:
-        all_pokemon = [p for p in self._data if self._meets_criteria(p, [])]
-        self._rand.shuffle(all_pokemon)
-        for pok in all_pokemon:
-            seq = self._finish_sequence((pok,))
-            if seq is not None:
-                return seq
-        raise Exception("Could not generate a valid sequence with the generator's criteria.")
+        seq = self._finish_sequence(tuple())
+        if seq is None:
+            raise Exception("Could not generate a valid sequence with the generator's criteria.")
+        return seq
 
     #
 
@@ -39,8 +36,11 @@ class Generator:
         if len(sequence) >= self._length:
             return sequence
 
-        pok = sequence[-1]
-        matches = [p for p in self._data.type(*pok.typing) if self._meets_criteria(p, sequence)]
+        if len(sequence) > 0:
+            pok = sequence[-1]
+            matches = [p for p in self._data.type(*pok.typing) if self._meets_criteria(p, sequence)]
+        else:
+            matches = [p for p in self._data if self._meets_criteria(p, [])]
         self._rand.shuffle(matches)
 
         for match in matches:
